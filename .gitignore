@@ -1,38 +1,15 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# node modules (용량 너무 크고, 다시 설치 가능하니까 제외)
 node_modules/
 
-# Expo
+# Expo 캐시
 .expo/
-dist/
-web-build/
-expo-env.d.ts
 
-# Native
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+# 환경 변수 파일 (.env)
+.env
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
+# 시스템 파일
 .DS_Store
-*.pem
 
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-app-example
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
