@@ -5,22 +5,26 @@ export default function HomeScreen() {
     const [text, setText] = useState<string>('');      // 감정일기 입력
     const [emotion, setEmotion] = useState<string>(''); // 감정 결과 텍스트
     const [image, setImage] = useState<any>(null);     // 캐릭터 이미지 상태
+    const [backgroundColor, setBackgroundColor] = useState<string>('#fffafc');
 
     const handleAnalyze = (): void => {
         if (text.includes('좋아') || text.includes('행복')) {
             setEmotion('😊 기쁨');
-            setImage(require('../../assets/characters/happy.png')); // 기쁨 이미지
+            setImage(require('../../assets/characters/happy.png'));
+            setBackgroundColor('#ffe6ec'); // 따뜻한 핑크
         } else if (text.includes('슬퍼') || text.includes('힘들')) {
             setEmotion('😢 슬픔');
-            setImage(require('../../assets/characters/sad.png')); // 슬픔 이미지
+            setImage(require('../../assets/characters/sad.png'));
+            setBackgroundColor('#d0e7ff'); // 차분한 파랑
         } else {
             setEmotion('😐 중립');
-            setImage(require('../../assets/characters/neutral.png')); // 중립 이미지
+            setImage(require('../../assets/characters/neutral.png'));
+            setBackgroundColor('#e0e0e0'); // 연회색
         }
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor }]}>
             {image && <Image source={image} style={styles.character} />}
 
             <Text style={styles.title}>🌸 오늘 하루 어땠나요?</Text>
