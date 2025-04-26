@@ -9,13 +9,13 @@ export default function HomeScreen() {
     const handleAnalyze = (): void => {
         if (text.includes('좋아') || text.includes('행복')) {
             setEmotion('😊 기쁨');
-            setImage(require('../assets/characters/happy.png')); // 기쁨 이미지
+            setImage(require('../../assets/characters/happy.png')); // 기쁨 이미지
         } else if (text.includes('슬퍼') || text.includes('힘들')) {
             setEmotion('😢 슬픔');
-            setImage(require('../assets/characters/sad.png')); // 슬픔 이미지
+            setImage(require('../../assets/characters/sad.png')); // 슬픔 이미지
         } else {
             setEmotion('😐 중립');
-            setImage(require('../assets/characters/neutral.png')); // 중립 이미지
+            setImage(require('../../assets/characters/neutral.png')); // 중립 이미지
         }
     };
 
