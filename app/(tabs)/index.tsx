@@ -58,21 +58,25 @@ export default function HomeScreen() {
             bgColor = '#e0e0e0';
         }
 
-        // 감정 결과 화면에 반영
         setEmotion(detectedEmotion);
         setImage(characterImage);
         setBackgroundColor(bgColor);
 
-        // ✅ AsyncStorage에 저장하기
-        const diaryEntry = {
+        const newEntry = {
             text: text,
             emotion: detectedEmotion,
-            date: new Date().toISOString(), // 저장 시간도 기록
+            date: new Date().toISOString(),
         };
 
         try {
-            await AsyncStorage.setItem('latestDiary', JSON.stringify(diaryEntry));
-            console.log('📝 감정일기 저장 완료!');
+            const savedData = await AsyncStorage.getItem('diaryList');
+            let diaryList = savedData ? JSON.parse(savedData) : [];
+
+            diaryList.unshift(newEntry);
+
+            await AsyncStorage.setItem('diaryList', JSON.stringify(diaryList));
+
+            console.log('📝 감정일기 추가 저장 완료!');
         } catch (error) {
             console.error('❌ 저장 실패:', error);
         }
