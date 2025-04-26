@@ -2,34 +2,28 @@ import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
 
 export default function HomeScreen() {
-    const [text, setText] = useState<string>('');
-
-    const [emotion, setEmotion] = useState<string>('');
-
-    const [emoji, setEmoji] = useState<string>('🌥️'); // 초기: 흐림 구름
+    const [text, setText] = useState<string>('');      // 감정일기 입력
+    const [emotion, setEmotion] = useState<string>(''); // 감정 결과 텍스트
+    const [image, setImage] = useState<any>(null);     // 캐릭터 이미지 상태
 
     const handleAnalyze = (): void => {
         if (text.includes('좋아') || text.includes('행복')) {
             setEmotion('😊 기쁨');
-            setEmoji('🌞'); // 기쁨 → 해맑은 구름
+            setImage(require('../assets/characters/happy.png')); // 기쁨 이미지
         } else if (text.includes('슬퍼') || text.includes('힘들')) {
             setEmotion('😢 슬픔');
-            setEmoji('🌧️'); // 슬픔 → 비 오는 구름
+            setImage(require('../assets/characters/sad.png')); // 슬픔 이미지
         } else {
             setEmotion('😐 중립');
-            setEmoji('⛅️'); // 중립 → 흐림과 맑음 사이
+            setImage(require('../assets/characters/neutral.png')); // 중립 이미지
         }
     };
 
     return (
         <View style={styles.container}>
-            {/* 감정 캐릭터 (이모지로 표현) */}
-            <Text style={styles.emoji}>{emoji}</Text>
+            {image && <Image source={image} style={styles.character} />}
 
-            {/* 제목 */}
             <Text style={styles.title}>🌸 오늘 하루 어땠나요?</Text>
-
-            {/* 입력창 */}
             <TextInput
                 style={styles.input}
                 placeholder="마음속 이야기를 적어보세요..."
@@ -37,11 +31,8 @@ export default function HomeScreen() {
                 onChangeText={setText}
                 multiline
             />
-
-            {/* 감정 분석 버튼 */}
             <Button title="감정 분석하기" onPress={handleAnalyze} />
 
-            {/* 감정 결과 텍스트 */}
             {emotion !== '' && (
                 <Text style={styles.result}>결과: {emotion}</Text>
             )}
@@ -49,7 +40,6 @@ export default function HomeScreen() {
     );
 }
 
-// 스타일 설정 (디자인 느낌)
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -58,9 +48,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
     },
-    emoji: {
-        fontSize: 64, // 캐릭터 이모지 크기
-        marginBottom: 12,
+    character: {
+        width: 120,
+        height: 120,
+        marginBottom: 16,
+        resizeMode: 'contain',
     },
     title: {
         fontSize: 22,
