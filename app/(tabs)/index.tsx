@@ -1,32 +1,86 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ AsyncStorage 불러오기
 
 export default function HomeScreen() {
-    const [text, setText] = useState<string>('');      // 감정일기 입력
-    const [emotion, setEmotion] = useState<string>(''); // 감정 결과 텍스트
-    const [image, setImage] = useState<any>(null);     // 캐릭터 이미지 상태
+    const [text, setText] = useState<string>('');
+    const [emotion, setEmotion] = useState<string>('');
+    const [image, setImage] = useState<any>(null);
     const [backgroundColor, setBackgroundColor] = useState<string>('#fffafc');
 
-    const handleAnalyze = (): void => {
+    useEffect(() => {
+        const loadDiary = async () => {
+            try {
+                const savedEntry = await AsyncStorage.getItem('latestDiary');
+                if (savedEntry !== null) {
+                    const diary = JSON.parse(savedEntry);
+                    setText(diary.text);          // 저장했던 텍스트 불러오기
+                    setEmotion(diary.emotion);     // 저장했던 감정 불러오기
+
+                    // 감정에 맞춰 이미지와 배경색도 같이 적용
+                    if (diary.emotion === '😊 기쁨') {
+                        setImage(require('../../assets/characters/happy.png'));
+                        setBackgroundColor('#ffe6ec');
+                    } else if (diary.emotion === '😢 슬픔') {
+                        setImage(require('../../assets/characters/sad.png'));
+                        setBackgroundColor('#d0e7ff');
+                    } else {
+                        setImage(require('../../assets/characters/neutral.png'));
+                        setBackgroundColor('#e0e0e0');
+                    }
+
+                    console.log('📖 저장된 감정일기 불러오기 완료!');
+                }
+            } catch (error) {
+                console.error('❌ 감정일기 불러오기 실패:', error);
+            }
+        };
+
+        loadDiary(); // 앱이 켜질 때 함수 실행
+    }, []); // []는 "앱 처음 켰을 때 한 번만" 실행한다는 의미
+
+    const handleAnalyze = async (): Promise<void> => {
+        let detectedEmotion = '';
+        let characterImage: any = null;
+        let bgColor = '';
+
         if (text.includes('좋아') || text.includes('행복')) {
-            setEmotion('😊 기쁨');
-            setImage(require('../../assets/characters/happy.png'));
-            setBackgroundColor('#ffe6ec'); // 따뜻한 핑크
+            detectedEmotion = '😊 기쁨';
+            characterImage = require('../../assets/characters/happy.png');
+            bgColor = '#ffe6ec';
         } else if (text.includes('슬퍼') || text.includes('힘들')) {
-            setEmotion('😢 슬픔');
-            setImage(require('../../assets/characters/sad.png'));
-            setBackgroundColor('#d0e7ff'); // 차분한 파랑
+            detectedEmotion = '😢 슬픔';
+            characterImage = require('../../assets/characters/sad.png');
+            bgColor = '#d0e7ff';
         } else {
-            setEmotion('😐 중립');
-            setImage(require('../../assets/characters/neutral.png'));
-            setBackgroundColor('#e0e0e0'); // 연회색
+            detectedEmotion = '😐 중립';
+            characterImage = require('../../assets/characters/neutral.png');
+            bgColor = '#e0e0e0';
+        }
+
+        // 감정 결과 화면에 반영
+        setEmotion(detectedEmotion);
+        setImage(characterImage);
+        setBackgroundColor(bgColor);
+
+        // ✅ AsyncStorage에 저장하기
+        const diaryEntry = {
+            text: text,
+            emotion: detectedEmotion,
+            date: new Date().toISOString(), // 저장 시간도 기록
+        };
+
+        try {
+            await AsyncStorage.setItem('latestDiary', JSON.stringify(diaryEntry));
+            console.log('📝 감정일기 저장 완료!');
+        } catch (error) {
+            console.error('❌ 저장 실패:', error);
         }
     };
 
     return (
         <View style={[styles.container, { backgroundColor }]}>
             {image && <Image source={image} style={styles.character} />}
-
             <Text style={styles.title}>🌸 오늘 하루 어땠나요?</Text>
             <TextInput
                 style={styles.input}
@@ -36,7 +90,6 @@ export default function HomeScreen() {
                 multiline
             />
             <Button title="감정 분석하기" onPress={handleAnalyze} />
-
             {emotion !== '' && (
                 <Text style={styles.result}>결과: {emotion}</Text>
             )}
@@ -44,10 +97,10 @@ export default function HomeScreen() {
     );
 }
 
+// 스타일
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fffafc',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
