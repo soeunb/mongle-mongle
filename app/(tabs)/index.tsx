@@ -39,6 +39,30 @@ export default function HomeScreen() {
         loadDiary(); // 앱이 켜질 때 함수 실행
     }, []); // []는 "앱 처음 켰을 때 한 번만" 실행한다는 의미
 
+    const addPoints = async (amount: number) => {
+        try {
+            const saved = await AsyncStorage.getItem('userState');
+            let user: UserState;
+
+            if (saved) {
+                user = JSON.parse(saved);
+            } else {
+                user = {
+                    currentSkinId: 'default',
+                    ownedSkins: ['default'],
+                    points: 0,
+                };
+            }
+
+            user.points += amount;
+
+            await AsyncStorage.setItem('userState', JSON.stringify(user));
+            console.log(`💰 포인트 적립 완료! 현재 포인트: ${user.points}`);
+        } catch (e) {
+            console.error('포인트 적립 실패:', e);
+        }
+    };
+
     const handleAnalyze = async (): Promise<void> => {
         let detectedEmotion = '';
         let characterImage: any = null;
@@ -77,6 +101,9 @@ export default function HomeScreen() {
             await AsyncStorage.setItem('diaryList', JSON.stringify(diaryList));
 
             console.log('📝 감정일기 추가 저장 완료!');
+
+            await addPoints(5);
+
         } catch (error) {
             console.error('❌ 저장 실패:', error);
         }
