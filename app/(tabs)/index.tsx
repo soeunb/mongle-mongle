@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ AsyncStorage 불러오기
+type UserState = {
+    currentSkinId: string;
+    ownedSkins: string[];
+    points: number;
+};
 
 export default function HomeScreen() {
     const [text, setText] = useState<string>('');
