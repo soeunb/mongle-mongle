@@ -1,11 +1,25 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { SKINS, Skin } from '@/constants/skins'; // 너가 만든 skins.ts
+import { SKINS, Skin } from '@/constants/skins';
+import AsyncStorage from "@react-native-async-storage/async-storage"; // 너가 만든 skins.ts
 
 export default function SkinSelectorScreen() {
-    const handleSelectSkin = (skin: Skin) => {
-        // TODO: 선택한 스킨 저장 로직
-        console.log('선택한 스킨:', skin.name);
+    const handleSelectSkin = async (skin: Skin) => {
+        try {
+            const saved = await AsyncStorage.getItem('userState');
+            let user = saved ? JSON.parse(saved) : {
+                currentSkinId: 'default',
+                ownedSkins: ['default'],
+                points: 0,
+            };
+
+            user.currentSkinId = skin.id;
+
+            await AsyncStorage.setItem('userState', JSON.stringify(user));
+            console.log('🧸 선택한 스킨 저장 완료!');
+        } catch (e) {
+            console.error('스킨 저장 실패:', e);
+        }
     };
 
     return (
