@@ -17,32 +17,39 @@ export default function HomeScreen() {
         const loadDiary = async () => {
             try {
                 const savedEntry = await AsyncStorage.getItem('latestDiary');
+                const savedUser = await AsyncStorage.getItem('userState'); // ✅ [추가] 선택한 스킨 불러오기
+
+                let currentSkinId = 'default';
+                if (savedUser) {
+                    const user = JSON.parse(savedUser);
+                    currentSkinId = user.currentSkinId || 'default';
+                }
+
                 if (savedEntry !== null) {
                     const diary = JSON.parse(savedEntry);
-                    setText(diary.text);          // 저장했던 텍스트 불러오기
-                    setEmotion(diary.emotion);     // 저장했던 감정 불러오기
+                    setText(diary.text);
+                    setEmotion(diary.emotion);
 
-                    // 감정에 맞춰 이미지와 배경색도 같이 적용
-                    if (diary.emotion === '😊 기쁨') {
-                        setImage(require('../../assets/characters/happy.png'));
-                        setBackgroundColor('#ffe6ec');
-                    } else if (diary.emotion === '😢 슬픔') {
-                        setImage(require('../../assets/characters/sad.png'));
-                        setBackgroundColor('#d0e7ff');
-                    } else {
-                        setImage(require('../../assets/characters/neutral.png'));
-                        setBackgroundColor('#e0e0e0');
-                    }
+                    let emotionKey = 'neutral';
+                    if (diary.emotion === '😊 기쁨') emotionKey = 'happy';
+                    else if (diary.emotion === '😢 슬픔') emotionKey = 'sad';
 
-                    console.log('📖 저장된 감정일기 불러오기 완료!');
+                    const imagePath = getSkinImage(currentSkinId, emotionKey);
+                    setImage(imagePath);
+
+                    setBackgroundColor(getEmotionBackground(diary.emotion));
+                } else {
+                    const imagePath = getSkinImage(currentSkinId, 'neutral');
+                    setImage(imagePath);
                 }
+                console.log('📖 저장된 감정일기 불러오기 완료!');
             } catch (error) {
                 console.error('❌ 감정일기 불러오기 실패:', error);
             }
         };
 
         loadDiary(); // 앱이 켜질 때 함수 실행
-    }, []); // []는 "앱 처음 켰을 때 한 번만" 실행한다는 의미
+    }, []);
 
     const addPoints = async (amount: number) => {
         try {
@@ -112,6 +119,32 @@ export default function HomeScreen() {
         } catch (error) {
             console.error('❌ 저장 실패:', error);
         }
+    };
+
+    const getSkinImage = (skinId: string, emotion: string) => {
+        const key = `${skinId}_${emotion}`; // 예: 'default_happy'
+
+        const imageMap: Record<string, any> = {
+            default_happy: require('../../assets/characters/happy.png'),
+            default_sad: require('../../assets/characters/sad.png'),
+            default_neutral: require('../../assets/characters/neutral.png'),
+
+            sparkle_happy: require('../../assets/characters/sparkle.png'),
+            sparkle_sad: require('../../assets/characters/sparkle.png'),
+            sparkle_neutral: require('../../assets/characters/sparkle.png'),
+
+            sleepy_happy: require('../../assets/characters/sleepy.png'),
+            sleepy_sad: require('../../assets/characters/sleepy.png'),
+            sleepy_neutral: require('../../assets/characters/sleepy.png'),
+        };
+
+        return imageMap[key] || imageMap['default_neutral'];
+    };
+
+    const getEmotionBackground = (emotion: string) => {
+        if (emotion === '😊 기쁨') return '#ffe6ec';
+        if (emotion === '😢 슬픔') return '#d0e7ff';
+        return '#e0e0e0';
     };
 
     return (
